@@ -1,5 +1,33 @@
 function searchBinaryOperatorTable(input,table,columnSearchId) {
   var input, filter, table, tr, td, i, txtValue;
+
+  var btnContainer = document.getElementById("binaryOperators");
+  var btns = btnContainer.getElementsByClassName("button");
+
+  var buttonId = 0;
+  for (var i = 0; i < btns.length; i++) {
+      var current = document.getElementsByClassName("active");
+      if (current) {
+        var buttonHtml = current[0];
+        // buttonHtml.style.backgroundColor = 'green';
+        var buttonId = buttonHtml.id.replace(/[^\d.-]/g, '');
+        break;
+      }
+  }
+
+  var binaryOperator = '';
+  if (buttonId == 1) {
+    binaryOperator = '<';
+  } else if (buttonId == 2) {
+      binaryOperator = '<=';
+  } else if (buttonId == 3) {
+      binaryOperator = '>';
+  } else if (buttonId == 4) {
+      binaryOperator = '>=';
+  }
+
+          console.log( binaryOperator);
+
   input = document.getElementById(input);
   // if (input.value != '') {
   //     console.log(input.value);
@@ -14,14 +42,31 @@ function searchBinaryOperatorTable(input,table,columnSearchId) {
     td = tr[i].getElementsByTagName("td")[columnSearchId];
     if (td) {
       txtValue = td.textContent || td.innerText;
-    console.log(input.value);
-      if ((txtValue*1 > input.value*1) || ( input.value == "" ) ) { // Opérateur >
-        console.log('A');
-        tr[i].style.display = ""; // ON AFFICHE LA LIGNE
-      } else {
-          console.log('C');
-          tr[i].style.display = "none";  // ON AFFICHE PAS LA LIGNE
-      }
+        if (binaryOperator == '<') {
+            if ((txtValue*1 < input.value*1) || ( input.value == "" ) ) {
+                tr[i].style.display = ""; // ON AFFICHE LA LIGNE
+            } else {
+                tr[i].style.display = "none";  // ON AFFICHE PAS LA LIGNE
+            }
+        } else if (binaryOperator == '<=') {
+            if ((txtValue*1 <= input.value*1) || ( input.value == "" ) ) {
+                tr[i].style.display = ""; // ON AFFICHE LA LIGNE
+            } else {
+                tr[i].style.display = "none";  // ON AFFICHE PAS LA LIGNE
+            }
+        } else if (binaryOperator == '>') {
+            if ((txtValue*1 > input.value*1) || ( input.value == "" ) ) {
+                tr[i].style.display = ""; // ON AFFICHE LA LIGNE
+            } else {
+                tr[i].style.display = "none";  // ON AFFICHE PAS LA LIGNE
+            }
+        } else if (binaryOperator == '>=') {
+            if ((txtValue*1 >= input.value*1) || ( input.value == "" ) ) {
+                tr[i].style.display = ""; // ON AFFICHE LA LIGNE
+            } else {
+                tr[i].style.display = "none";  // ON AFFICHE PAS LA LIGNE
+            }
+        }
     }
   }
 }
