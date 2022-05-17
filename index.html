@@ -107,8 +107,6 @@
 
 				function clickButton() {
 					var test = document.getElementById('test');
-					console.log(test.style);
-					console.log(test.style.background);
 					test.style.background = "red";
 				}
 
@@ -127,13 +125,31 @@
 						button.setAttribute("id", 'Btn' + index);
 						// button.innerHTML="test";
 				    button.className += "button";
-				    button.className += " default-button";
+						if (i == textOfButtons.length-1) {
+							button.className += " active";
+							button.style.backgroundColor = 'green';
+						}
 						var buttonGroup = document.getElementById(div);
-						console.log(buttonGroup);
 				    buttonGroup.appendChild(button);
 						   // document.body.appendChild(button);
 				  }
 				}
+
+				// Get the container element
+				var btnContainer = document.getElementById("binaryOperators");
+
+				// Get all buttons with class="btn" inside the container
+				var btns = btnContainer.getElementsByClassName("button");
+
+				// Loop through the buttons and add the active class to the current/clicked button
+				for (var i = 0; i < btns.length; i++) {
+				  btns[i].addEventListener("click", function() {
+				    var current = document.getElementsByClassName("active");
+					    current[0].className = current[0].className.replace(" active", "");
+							button.style.backgroundColor = '';
+					    this.className += " active";
+					});
+			  }
 
 			</script>
 			<script src="assets/js/sorttable.js"></script>
