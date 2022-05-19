@@ -1,9 +1,4 @@
 <!DOCTYPE HTML>
-<!--
-	Solid State by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html lang="en">
 	<head>
 		<title>GoogleSheetsDB - Alexandre ZANNI</title>
@@ -13,16 +8,22 @@
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
 
-		<input type="text" id="inputFruitsAndVegetables0" onkeyup="searchTable('inputFruitsAndVegetables0','tableFruitsAndVegetables', 0)" placeholder="Chercher 'aliment végétal'..." title="Type in a name">
-		<input type="text" id="inputFruitsAndVegetables1" onkeyup="searchTable('inputFruitsAndVegetables1','tableFruitsAndVegetables', 1)" placeholder="Chercher 'famille'..." title="Type in a name">
-		<input type="text" id="inputFruitsAndVegetables2" onkeyup="searchTable('inputFruitsAndVegetables2','tableFruitsAndVegetables', 2)" placeholder="Chercher 'type'..." title="Type in a name">
-		<input type="text" id="inputFruitsAndVegetables3" onkeyup="searchTable('inputFruitsAndVegetables3','tableFruitsAndVegetables', 3)" placeholder="Chercher 'quantité'..." title="Type in a name">
-		<input type="text" id="inputFruitsAndVegetables4" onkeyup="searchBinaryOperatorTable('inputFruitsAndVegetables4','tableFruitsAndVegetables', 3)" placeholder="Chercher 'opérateur binaire' (nombre à virgule doit avoir point)..." title="Type in a name">
-		<div id="binaryOperators"></div>
-		<!-- URL dataFruits&Vegetables : https://fr.wikipedia.org/wiki/Liste_des_plantes_potag%C3%A8res_par_familles_botaniques -->
+		<input type="text" id="inputSearch" onkeyup="searchTable('inputSearch','tableFruitsAndVegetables')" placeholder="Chercher par nom..." title="Type in a name">
+		<select id="selectSearchStringTable"></select>
+
+		<input type="text" id="inputBinaryOperator" onkeyup="searchBinaryOperatorTable('inputBinaryOperator','tableFruitsAndVegetables')" placeholder="Chercher par valeur..." title="Type in a name">
+		<select id="selectedBinaryOperator">
+			<option value="0"><</option>
+			<option value="1"><=</option>
+			<option value="2">=</option>
+			<option value="3">></option>
+			<option value="3">>=</option>
+		</select>
+
+		<select id="selectBinaryOperatorTable"></select>
+
 		<div id="tableFruitsAndVegetables" class="table-wrapper"></div>
 
-		<!-- Scripts -->
 			<script>
 			// ex URL publique : https://jsonplaceholder.typicode.com/todos/1
 
@@ -32,7 +33,7 @@
 			var url = 'https://sheets.googleapis.com/v4/spreadsheets/' +
 			           spreadsheet_id + '/values/' + tab_name +
 			           '?alt=json&key=' + api_key;
-			// console.log(url);
+			console.log(url);
 
 			function loadJSON(callback) {
 				 var xobj = new XMLHttpRequest();
@@ -53,16 +54,15 @@
 					realJSON = actual_JSON.values;
 					// console.log(response);
 					// console.log(realJSON);
-					GFG_FUN(realJSON, 'tableFruitsAndVegetables');
+					importJsonGoogleSheetsData(realJSON, 'tableFruitsAndVegetables');
 			 });
 
-			 function GFG_FUN(list, tableId) {
+			 function importJsonGoogleSheetsData(list, tableId) {
             var cols = [];
 
             for (var i = 0; i < list.length; i++) {
                 for (var k in list[i]) {
                     if (cols.indexOf(k) === -1) {
-
                         // Push all keys to the array
                         cols.push(k);
                     }
@@ -78,12 +78,20 @@
             // Create theader
 					 var thead = document.createElement("thead");
 					 var tr = table.appendChild(thead);
+					 var selectSearch = document.getElementById("selectSearchStringTable");
+					 var selectBinaryOperator = document.getElementById("selectBinaryOperatorTable");
+					 var options = [];
 
             for (var i = 0; i < cols.length; i++) {
                 // Create the table header th element
                 var theader = document.createElement("th");
 								// theader.innerHTML = list[0][0];
                 theader.innerHTML = list[0][i];
+								var optionSelectSearch = new Option(theader.innerHTML, i);
+								selectSearch.appendChild(optionSelectSearch);
+								var optionSelectBinaryOperator = new Option(theader.innerHTML, i);
+								selectBinaryOperator.appendChild(optionSelectBinaryOperator);
+
                 // Append columnName to the table row
                 tr.appendChild(theader);
             }
@@ -105,56 +113,93 @@
             el.appendChild(table);
         }
 
-				function clickButton() {
-					var test = document.getElementById('test');
-					test.style.background = "red";
+				function selectTable(selectId) {
+					var columnSearchId = document.getElementById(selectId).value;
+					return columnSearchId;
 				}
 
-				createButtons(['<','< OR =','>','> OR ='], 'binaryOperators');
-
-				function createButtons(textButtons, div) {
-					var textOfButtons = textButtons;
-				  for (i = 0; i < textOfButtons.length; i++) {
-				    //creates a new button
-				    button = document.createElement('Button');
-
-				    //sets correct button number and button text
-				    var index = i + 1;
-						var text = document.createTextNode(textButtons[i]);
-				    button.appendChild(text);
-						button.setAttribute("id", 'Btn' + index);
-						// button.innerHTML="test";
-				    button.className += "button";
-						if (i == textOfButtons.length-1) {
-							button.className += " active";
-							button.style.backgroundColor = 'green';
-						}
-						var buttonGroup = document.getElementById(div);
-				    buttonGroup.appendChild(button);
-						   // document.body.appendChild(button);
+				function searchTable(input,table) {
+					var columnSearchId = selectTable("selectSearchStringTable");
+				  var trValues = document.getElementById("tableData").getElementsByTagName("tbody")[0].rows; // TODO
+				  var input, filter, table, tr, td, i, txtValue;
+				  input = document.getElementById(input);
+				  filter = input.value.toUpperCase();
+				  table = document.getElementById(table);
+				  tr = table.getElementsByTagName("tr");
+				  for (i = 0; i < tr.length; i++) {
+				    td = tr[i].getElementsByTagName("td")[columnSearchId];
+				    if (td) {
+				      txtValue = td.textContent || td.innerText;
+				      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+				        tr[i].style.display = "";
+				      } else {
+				        tr[i].style.display = "none";
+				      }
+				    }
 				  }
 				}
 
-				// Get the container element
-				var btnContainer = document.getElementById("binaryOperators");
+				function searchBinaryOperatorTable(input,table) {
+					var columnSearchId = selectTable("selectBinaryOperatorTable");
+					var binaryOperatorId = selectTable("selectedBinaryOperator");
+				  var input, table, tr, td, i, txtValue;
 
-				// Get all buttons with class="btn" inside the container
-				var btns = btnContainer.getElementsByClassName("button");
+				  if (binaryOperatorId == 0) {
+				    binaryOperator = '<';
+				  } else if (binaryOperatorId == 1) {
+				      binaryOperator = '<=';
+				  }  else if (binaryOperatorId == 2) {
+				      binaryOperator = '=';
+				  } else if (binaryOperatorId == 3) {
+				      binaryOperator = '>';
+				  } else if (binaryOperatorId == 4) {
+				      binaryOperator = '>=';
+				  }
 
-				// Loop through the buttons and add the active class to the current/clicked button
-				for (var i = 0; i < btns.length; i++) {
-				  btns[i].addEventListener("click", function() {
-				    var current = document.getElementsByClassName("active");
-					    current[0].className = current[0].className.replace(" active", "");
-							button.style.backgroundColor = '';
-					    this.className += " active";
-					});
-			  }
+				  input = document.getElementById(input);
+				  table = document.getElementById(table);
+				  tr = table.getElementsByTagName("tr");
+				  for (i = 0; i < tr.length; i++) {
+				    td = tr[i].getElementsByTagName("td")[columnSearchId];
+				    if (td) {
+				      txtValue = td.textContent || td.innerText;
+				        if (binaryOperator == '<') {
+				            if ((txtValue*1 < input.value*1) || ( input.value == "" ) ) {
+				                tr[i].style.display = "";
+				            } else {
+				                tr[i].style.display = "none";
+				            }
+				        } else if (binaryOperator == '<=') {
+				            if ((txtValue*1 <= input.value*1) || ( input.value == "" ) ) {
+				                tr[i].style.display = "";
+				            } else {
+				                tr[i].style.display = "none";
+				            }
+				        } else if (binaryOperator == '=') {
+				            if ((txtValue*1 == input.value*1) || ( input.value == "" ) ) {
+				                tr[i].style.display = "";
+				            } else {
+				                tr[i].style.display = "none";
+				            }
+				        } else if (binaryOperator == '>') {
+				            if ((txtValue*1 > input.value*1) || ( input.value == "" ) ) {
+				                tr[i].style.display = "";
+				            } else {
+				                tr[i].style.display = "none";
+				            }
+				        } else if (binaryOperator == '>=') {
+				            if ((txtValue*1 >= input.value*1) || ( input.value == "" ) ) {
+				                tr[i].style.display = "";
+				            } else {
+				                tr[i].style.display = "none";
+				            }
+				        }
+				    }
+				  }
+				}
 
 			</script>
 			<script src="assets/js/sorttable.js"></script>
-			<script src="assets/js/searchtable.js"></script>
-			<script src="assets/js/binaryoperatorssearchtable.js"></script>
 
 	</body>
 </html>
