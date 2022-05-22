@@ -8,19 +8,31 @@
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
 
-		<input type="text" id="inputSearch" onkeyup="searchTable('inputSearch','tableFruitsAndVegetables')" placeholder="Chercher par nom..." title="Type in a name">
-		<select id="selectSearchStringTable"></select>
+		Saisir :
+	  <input type="text" id="inputFilterAction" onkeyup="selectFilterAction()" placeholder="valeur / texte..." title="Type in a name">
+		<button id="sortButton" onclick="selectFilterAction()" disabled>Trier !</button>
 
-		<input type="text" id="inputBinaryOperator" onkeyup="searchBinaryOperatorTable('inputBinaryOperator','tableFruitsAndVegetables')" placeholder="Chercher par valeur..." title="Type in a name">
-		<select id="selectedBinaryOperator">
+		Filtrer par :
+		<select id="selectFilterAction" onchange="hideInputOnAction()">
+			<option value="0">nom</option>
+			<option value="1">valeur</option>
+			<option value="2">ordre</option>
+		</select>
+		sur la colonne :
+		<select id="selectFilterActionTable"></select>
+
+		avec pour option :
+		<select disabled id="selectedBinaryOperator">
 			<option value="0"><</option>
 			<option value="1"><=</option>
 			<option value="2">=</option>
 			<option value="3">></option>
-			<option value="3">>=</option>
+			<option value="4">>=</option>
 		</select>
-
-		<select id="selectBinaryOperatorTable"></select>
+		<select disabled id="selectedOrder">
+			<option value="0">Croissant</option>
+			<option value="1">Décroissant (INACTIF)</option>
+		</select>
 
 		<div id="tableFruitsAndVegetables" class="table-wrapper"></div>
 
@@ -38,7 +50,7 @@
 			function loadJSON(callback) {
 				 var xobj = new XMLHttpRequest();
 						 xobj.overrideMimeType("application/json");
-				 xobj.open('GET', url, true); // Replace 'my_data' with the path to your file
+				 xobj.open('GET', url, true);
 				 xobj.onreadystatechange = function () {
 							 if (xobj.readyState == 4 && xobj.status == "200") {
 								 // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -63,64 +75,86 @@
             for (var i = 0; i < list.length; i++) {
                 for (var k in list[i]) {
                     if (cols.indexOf(k) === -1) {
-                        // Push all keys to the array
                         cols.push(k);
                     }
                 }
             }
 
-            // Create a table element
             var table = document.createElement("table");
 						table.setAttribute("class", "sortable");
 						table.setAttribute("border", "1px solid black");
 						table.setAttribute("id", "tableData");
 
-            // Create theader
 					 var thead = document.createElement("thead");
 					 var tr = table.appendChild(thead);
-					 var selectSearch = document.getElementById("selectSearchStringTable");
-					 var selectBinaryOperator = document.getElementById("selectBinaryOperatorTable");
+					 var selectFilterAction = document.getElementById("selectFilterActionTable");
 					 var options = [];
 
             for (var i = 0; i < cols.length; i++) {
-                // Create the table header th element
                 var theader = document.createElement("th");
-								// theader.innerHTML = list[0][0];
                 theader.innerHTML = list[0][i];
-								var optionSelectSearch = new Option(theader.innerHTML, i);
-								selectSearch.appendChild(optionSelectSearch);
-								var optionSelectBinaryOperator = new Option(theader.innerHTML, i);
-								selectBinaryOperator.appendChild(optionSelectBinaryOperator);
-
-                // Append columnName to the table row
+								var optionSelectFilterAction = new Option(theader.innerHTML, i);
+								selectFilterAction.appendChild(optionSelectFilterAction);
                 tr.appendChild(theader);
             }
 
-            // Adding the data to the table
             for (var i = 1; i < list.length; i++) {
-                // Create a new row
                 trow = table.insertRow(-1);
                 for (var j = 0; j < cols.length; j++) {
                     var cell = trow.insertCell(-1);
-                    // Inserting the cell at particular place
                     cell.innerHTML = list[i][cols[j]];
                 }
             }
 
-            // Add the newly created table containing json data
             var el = document.getElementById(tableId);
             el.innerHTML = "";
             el.appendChild(table);
         }
 
-				function selectTable(selectId) {
-					var columnSearchId = document.getElementById(selectId).value;
+				function selectFilterAction() {
+					var action = selectTable("selectFilterAction");
+					var columnId = selectTable("selectFilterActionTable");
+				  if (action == 0) {
+				    searchTable('inputFilterAction','tableFruitsAndVegetables',columnId);
+				  } else if (action == 1) {
+				  	searchBinaryOperatorTable('inputFilterAction','tableFruitsAndVegetables',columnId);
+				  } else if (action == 2) {
+	  				sortTable('inputFilterAction','tableFruitsAndVegetables',columnId);
+				  }
+				}
+
+				function hideInputOnAction() {
+					var action = selectTable("selectFilterAction");
+					var selectedBinaryOperator = document.getElementById("selectedBinaryOperator");
+					var inputFilterAction = document.getElementById("inputFilterAction");
+					var sortButton = document.getElementById("sortButton");
+					var selectedOrder = document.getElementById("selectedOrder");
+					if (action == 0) {
+						sortButton.disabled = true;
+						inputFilterAction.setAttribute('type','text');
+						selectedBinaryOperator.disabled = true;
+						selectedOrder.disabled = true;
+					} else if (action == 1) {
+						sortButton.disabled = true;
+						inputFilterAction.setAttribute('type','text');
+						selectedBinaryOperator.disabled = false;
+						selectedOrder.disabled = true;
+					} else if (action == 2) {
+						sortButton.disabled = false;
+						inputFilterAction.setAttribute('type','hidden');
+						selectedBinaryOperator.disabled = true;
+						selectedOrder.disabled = false;
+					}
+				}
+
+				function selectTable(columnId) {
+					var columnSearchId = document.getElementById(columnId).value;
 					return columnSearchId;
 				}
 
-				function searchTable(input,table) {
-					var columnSearchId = selectTable("selectSearchStringTable");
-				  var trValues = document.getElementById("tableData").getElementsByTagName("tbody")[0].rows; // TODO
+				function searchTable(input,table,columnId) {
+					var columnSearchId = columnId;
+				  var trValues = document.getElementById("tableData").getElementsByTagName("tbody")[0].rows;
 				  var input, filter, table, tr, td, i, txtValue;
 				  input = document.getElementById(input);
 				  filter = input.value.toUpperCase();
@@ -139,8 +173,8 @@
 				  }
 				}
 
-				function searchBinaryOperatorTable(input,table) {
-					var columnSearchId = selectTable("selectBinaryOperatorTable");
+				function searchBinaryOperatorTable(input,table,columnId) {
+					var columnSearchId = columnId;
 					var binaryOperatorId = selectTable("selectedBinaryOperator");
 				  var input, table, tr, td, i, txtValue;
 
@@ -198,8 +232,34 @@
 				  }
 				}
 
+				function sortTable(input,table,columnId) {
+					var columnSearchId = columnId;
+				  var switching, i, x, y, shouldSwitch;
+					var input, table, tr, i, txtValue;
+					input = document.getElementById(input);
+					filter = input.value.toUpperCase();
+					table = document.getElementById(table);
+					tr = table.getElementsByTagName("tr");
+				  switching = true;
+				  while (switching) {
+				    switching = false;
+				  	for (i = 0; i < tr.length - 1; i++) {
+							shouldSwitch = false;
+							x = tr[i].getElementsByTagName("td")[columnSearchId];
+							y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
+							if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+								shouldSwitch = true;
+								break;
+							}
+				    }
+				    if (shouldSwitch) {
+				      tr[i].parentNode.insertBefore(tr[i + 1], tr[i]);
+				      switching = true;
+				    }
+				  }
+				}
+
 			</script>
-			<script src="assets/js/sorttable.js"></script>
 
 	</body>
 </html>
