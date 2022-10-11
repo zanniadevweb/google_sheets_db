@@ -31,7 +31,7 @@
 		</select>
 		<select disabled id="selectedOrder">
 			<option value="0">Croissant</option>
-			<option value="1">Décroissant (INACTIF)</option>
+			<option value="1">Décroissant</option>
 		</select>
 
 		<div id="tableFruitsAndVegetables" class="table-wrapper"></div>
@@ -45,7 +45,7 @@
 			var url = 'https://sheets.googleapis.com/v4/spreadsheets/' +
 			           spreadsheet_id + '/values/' + tab_name +
 			           '?alt=json&key=' + api_key;
-			console.log(url);
+			// console.log(url);
 
 			function loadJSON(callback) {
 				 var xobj = new XMLHttpRequest();
@@ -233,31 +233,53 @@
 				}
 
 				function sortTable(input,table,columnId) {
+					var selectedOrder = document.getElementById("selectedOrder").value;
 					var columnSearchId = columnId;
-				  var switching, i, x, y, shouldSwitch;
+					var switching, i, x, y, shouldSwitch;
 					var input, table, tr, i, txtValue;
 					input = document.getElementById(input);
 					filter = input.value.toUpperCase();
 					table = document.getElementById(table);
 					tr = table.getElementsByTagName("tr");
-				  switching = true;
-				  while (switching) {
-				    switching = false;
-				  	for (i = 0; i < tr.length - 1; i++) {
-							shouldSwitch = false;
-							x = tr[i].getElementsByTagName("td")[columnSearchId];
-							y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
-							if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-								shouldSwitch = true;
-								break;
+					switching = true;
+					while (switching) {
+						switching = false;
+						if (selectedOrder == 0) { // ORDRE CROISSANT
+							for (i = 0; i < tr.length - 1; i++) {
+									shouldSwitch = false;
+									x = tr[i].getElementsByTagName("td")[columnSearchId];
+									y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
+									if (convertAccentToStandardLetter(x.innerHTML.toLowerCase()) > convertAccentToStandardLetter(y.innerHTML.toLowerCase())) {
+										shouldSwitch = true;
+										break;
+									}
 							}
-				    }
-				    if (shouldSwitch) {
-				      tr[i].parentNode.insertBefore(tr[i + 1], tr[i]);
-				      switching = true;
-				    }
-				  }
+						} else if (selectedOrder == 1) { // ORDRE DECROISSANT
+							for (i = 0; i < tr.length - 1; i++) {
+								shouldSwitch = false;
+								x = tr[i].getElementsByTagName("td")[columnSearchId];
+								y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
+								if (convertAccentToStandardLetter(x.innerHTML.toLowerCase()) < convertAccentToStandardLetter(y.innerHTML.toLowerCase())) {
+									shouldSwitch = true;
+									break;
+								}
+						}
+						}
+						if (shouldSwitch) {
+							tr[i].parentNode.insertBefore(tr[i + 1], tr[i]);
+							switching = true;
+						}
+					}
+			}
+
+			function convertAccentToStandardLetter(value) {
+				if (!isNaN(value)) { // NOMBRE
+					return parseInt(value);
+				} else { // TEXTE
+					return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 				}
+
+			}
 
 			</script>
 
