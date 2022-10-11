@@ -7,10 +7,10 @@
 		<link rel="stylesheet" href="assets/css/style.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-
-		Saisir :
-	  <input type="text" id="inputFilterAction" onkeyup="selectFilterAction()" placeholder="valeur / texte..." title="Type in a name">
-		<button id="sortButton" onclick="selectFilterAction()" disabled>Trier !</button>
+	
+		<span id="spanSaisir">Saisir :</span>
+	 	<input type="text" id="inputFilterAction" onkeyup="selectFilterAction()" placeholder="valeur / texte..." title="Type in a name">
+		<button id="sortButton" onclick="selectFilterAction()" disabled hidden>Trier !</button>
 
 		Filtrer par :
 		<select id="selectFilterAction" onchange="hideInputOnAction()">
@@ -21,15 +21,15 @@
 		sur la colonne :
 		<select id="selectFilterActionTable"></select>
 
-		avec pour option :
-		<select disabled id="selectedBinaryOperator">
+		<span id="spanAvecPourOption" style="display: none;">avec pour option :</span>
+		<select disabled hidden id="selectedBinaryOperator">
 			<option value="0"><</option>
 			<option value="1"><=</option>
 			<option value="2">=</option>
 			<option value="3">></option>
 			<option value="4">>=</option>
 		</select>
-		<select disabled id="selectedOrder">
+		<select disabled hidden id="selectedOrder">
 			<option value="0">Croissant</option>
 			<option value="1">Décroissant</option>
 		</select>
@@ -58,218 +58,252 @@
 							 }
 				 };
 				 xobj.send(null);
-		 }
+		 	}
 
-			 loadJSON(function(response) {
-			  // Parse JSON string into object
-			    var actual_JSON = JSON.parse(response);
-					realJSON = actual_JSON.values;
-					// console.log(response);
-					// console.log(realJSON);
-					importJsonGoogleSheetsData(realJSON, 'tableFruitsAndVegetables');
-			 });
+			loadJSON(function(response) {
+			// Parse JSON string into object
+			var actual_JSON = JSON.parse(response);
+				realJSON = actual_JSON.values;
+				// console.log(response);
+				// console.log(realJSON);
+				importJsonGoogleSheetsData(realJSON, 'tableFruitsAndVegetables');
+			});
 
-			 function importJsonGoogleSheetsData(list, tableId) {
-            var cols = [];
+			function importJsonGoogleSheetsData(list, tableId) {
+				var cols = [];
 
-            for (var i = 0; i < list.length; i++) {
-                for (var k in list[i]) {
-                    if (cols.indexOf(k) === -1) {
-                        cols.push(k);
-                    }
-                }
-            }
-
-            var table = document.createElement("table");
-						table.setAttribute("class", "sortable");
-						table.setAttribute("border", "1px solid black");
-						table.setAttribute("id", "tableData");
-
-					 var thead = document.createElement("thead");
-					 var tr = table.appendChild(thead);
-					 var selectFilterAction = document.getElementById("selectFilterActionTable");
-					 var options = [];
-
-            for (var i = 0; i < cols.length; i++) {
-                var theader = document.createElement("th");
-                theader.innerHTML = list[0][i];
-								var optionSelectFilterAction = new Option(theader.innerHTML, i);
-								selectFilterAction.appendChild(optionSelectFilterAction);
-                tr.appendChild(theader);
-            }
-
-            for (var i = 1; i < list.length; i++) {
-                trow = table.insertRow(-1);
-                for (var j = 0; j < cols.length; j++) {
-                    var cell = trow.insertCell(-1);
-                    cell.innerHTML = list[i][cols[j]];
-                }
-            }
-
-            var el = document.getElementById(tableId);
-            el.innerHTML = "";
-            el.appendChild(table);
-        }
-
-				function selectFilterAction() {
-					var action = selectTable("selectFilterAction");
-					var columnId = selectTable("selectFilterActionTable");
-				  if (action == 0) {
-				    searchTable('inputFilterAction','tableFruitsAndVegetables',columnId);
-				  } else if (action == 1) {
-				  	searchBinaryOperatorTable('inputFilterAction','tableFruitsAndVegetables',columnId);
-				  } else if (action == 2) {
-	  				sortTable('inputFilterAction','tableFruitsAndVegetables',columnId);
-				  }
-				}
-
-				function hideInputOnAction() {
-					var action = selectTable("selectFilterAction");
-					var selectedBinaryOperator = document.getElementById("selectedBinaryOperator");
-					var inputFilterAction = document.getElementById("inputFilterAction");
-					var sortButton = document.getElementById("sortButton");
-					var selectedOrder = document.getElementById("selectedOrder");
-					if (action == 0) {
-						sortButton.disabled = true;
-						inputFilterAction.setAttribute('type','text');
-						selectedBinaryOperator.disabled = true;
-						selectedOrder.disabled = true;
-					} else if (action == 1) {
-						sortButton.disabled = true;
-						inputFilterAction.setAttribute('type','text');
-						selectedBinaryOperator.disabled = false;
-						selectedOrder.disabled = true;
-					} else if (action == 2) {
-						sortButton.disabled = false;
-						inputFilterAction.setAttribute('type','hidden');
-						selectedBinaryOperator.disabled = true;
-						selectedOrder.disabled = false;
+				for (var i = 0; i < list.length; i++) {
+					for (var k in list[i]) {
+						if (cols.indexOf(k) === -1) {
+							cols.push(k);
+						}
 					}
 				}
 
-				function selectTable(columnId) {
-					var columnSearchId = document.getElementById(columnId).value;
-					return columnSearchId;
+				var table = document.createElement("table");
+							table.setAttribute("class", "sortable");
+							table.setAttribute("border", "1px solid black");
+							table.setAttribute("id", "tableData");
+
+						var thead = document.createElement("thead");
+						var tr = table.appendChild(thead);
+						var selectFilterAction = document.getElementById("selectFilterActionTable");
+						var options = [];
+
+				for (var i = 0; i < cols.length; i++) {
+					var theader = document.createElement("th");
+					theader.innerHTML = list[0][i];
+					var optionSelectFilterAction = new Option(theader.innerHTML, i);
+					selectFilterAction.appendChild(optionSelectFilterAction);
+					tr.appendChild(theader);
 				}
 
-				function searchTable(input,table,columnId) {
-					var columnSearchId = columnId;
-				  var trValues = document.getElementById("tableData").getElementsByTagName("tbody")[0].rows;
-				  var input, filter, table, tr, td, i, txtValue;
-				  input = document.getElementById(input);
-				  filter = input.value.toUpperCase();
-				  table = document.getElementById(table);
-				  tr = table.getElementsByTagName("tr");
-				  for (i = 0; i < tr.length; i++) {
-				    td = tr[i].getElementsByTagName("td")[columnSearchId];
-				    if (td) {
-				      txtValue = td.textContent || td.innerText;
-				      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-				        tr[i].style.display = "";
-				      } else {
-				        tr[i].style.display = "none";
-				      }
-				    }
-				  }
+				for (var i = 1; i < list.length; i++) {
+					trow = table.insertRow(-1);
+					for (var j = 0; j < cols.length; j++) {
+						var cell = trow.insertCell(-1);
+						cell.innerHTML = list[i][cols[j]];
+					}
 				}
 
-				function searchBinaryOperatorTable(input,table,columnId) {
-					var columnSearchId = columnId;
-					var binaryOperatorId = selectTable("selectedBinaryOperator");
-				  var input, table, tr, td, i, txtValue;
+				var el = document.getElementById(tableId);
+				el.innerHTML = "";
+				el.appendChild(table);
+        	}
 
-				  if (binaryOperatorId == 0) {
-				    binaryOperator = '<';
-				  } else if (binaryOperatorId == 1) {
-				      binaryOperator = '<=';
-				  }  else if (binaryOperatorId == 2) {
-				      binaryOperator = '=';
-				  } else if (binaryOperatorId == 3) {
-				      binaryOperator = '>';
-				  } else if (binaryOperatorId == 4) {
-				      binaryOperator = '>=';
-				  }
+			function selectFilterAction() {
+				var action = selectTable("selectFilterAction");
+				var columnId = selectTable("selectFilterActionTable");
+				if (action == 0) { // TRI PAR NOM 
+					searchTable('inputFilterAction','tableFruitsAndVegetables',columnId);
+				} else if (action == 1) { // TRI PAR VALEUR
+					searchBinaryOperatorTable('inputFilterAction','tableFruitsAndVegetables',columnId);
+				} else if (action == 2) { // TRI PAR ORDRE
+					sortTable('inputFilterAction','tableFruitsAndVegetables',columnId);
+				}
+			}
 
-				  input = document.getElementById(input);
-				  table = document.getElementById(table);
-				  tr = table.getElementsByTagName("tr");
-				  for (i = 0; i < tr.length; i++) {
-				    td = tr[i].getElementsByTagName("td")[columnSearchId];
-				    if (td) {
-				      txtValue = td.textContent || td.innerText;
-				        if (binaryOperator == '<') {
-				            if ((txtValue*1 < input.value*1) || ( input.value == "" ) ) {
-				                tr[i].style.display = "";
-				            } else {
-				                tr[i].style.display = "none";
-				            }
-				        } else if (binaryOperator == '<=') {
-				            if ((txtValue*1 <= input.value*1) || ( input.value == "" ) ) {
-				                tr[i].style.display = "";
-				            } else {
-				                tr[i].style.display = "none";
-				            }
-				        } else if (binaryOperator == '=') {
-				            if ((txtValue*1 == input.value*1) || ( input.value == "" ) ) {
-				                tr[i].style.display = "";
-				            } else {
-				                tr[i].style.display = "none";
-				            }
-				        } else if (binaryOperator == '>') {
-				            if ((txtValue*1 > input.value*1) || ( input.value == "" ) ) {
-				                tr[i].style.display = "";
-				            } else {
-				                tr[i].style.display = "none";
-				            }
-				        } else if (binaryOperator == '>=') {
-				            if ((txtValue*1 >= input.value*1) || ( input.value == "" ) ) {
-				                tr[i].style.display = "";
-				            } else {
-				                tr[i].style.display = "none";
-				            }
-				        }
-				    }
-				  }
+			function hideInputOnAction() {
+				var action = selectTable("selectFilterAction");
+				var selectedBinaryOperator = document.getElementById("selectedBinaryOperator");
+				var inputFilterAction = document.getElementById("inputFilterAction");
+				var sortButton = document.getElementById("sortButton");
+				var selectedOrder = document.getElementById("selectedOrder");
+				var textSaisir = document.getElementById("spanSaisir");
+				var textAvecPourOption = document.getElementById("spanAvecPourOption");
+				if (action == 0) { // TRI PAR NOM 
+					disableAndHideInput(sortButton);
+					disableAndHideInput(inputFilterAction, false);
+					disableAndHideInput(selectedBinaryOperator);
+					disableAndHideInput(selectedOrder);
+					disableAndHideInput(textSaisir, false);
+					disableAndHideInput(textAvecPourOption);
+				} else if (action == 1) { // TRI PAR VALEUR
+					disableAndHideInput(sortButton);
+					disableAndHideInput(inputFilterAction, false);
+					disableAndHideInput(selectedBinaryOperator, false);
+					disableAndHideInput(selectedOrder);
+					disableAndHideInput(textSaisir, false);
+					disableAndHideInput(textAvecPourOption, false);
+				} else if (action == 2) { // TRI PAR ORDRE
+					disableAndHideInput(sortButton, false);
+					disableAndHideInput(inputFilterAction);
+					disableAndHideInput(selectedBinaryOperator);
+					disableAndHideInput(selectedOrder, false);
+					disableAndHideInput(textSaisir);
+					disableAndHideInput(textAvecPourOption, false);
+				}
+			}
+
+			function disableAndHideInput(input, isToDisableAndHide = true) {
+				if (isToDisableAndHide) {
+					input.disabled = true;
+					if (input.tagName.toLowerCase() === 'input') {
+						input.setAttribute('type','hidden');
+					} else if (input.tagName.toLowerCase() === 'span') {
+						input.style.display= 'none';
+					} else {
+						input.hidden = true
+					}
+				} else {
+					input.disabled = false;
+					if (input.tagName.toLowerCase() === 'input') {
+						input.setAttribute('type','text');
+					} else if (input.tagName.toLowerCase() === 'span') {
+						input.style.display= '';
+					} else {
+						input.hidden = false
+					}
 				}
 
-				function sortTable(input,table,columnId) {
-					var selectedOrder = document.getElementById("selectedOrder").value;
-					var columnSearchId = columnId;
-					var switching, i, x, y, shouldSwitch;
-					var input, table, tr, i, txtValue;
-					input = document.getElementById(input);
-					filter = input.value.toUpperCase();
-					table = document.getElementById(table);
-					tr = table.getElementsByTagName("tr");
-					switching = true;
-					while (switching) {
-						switching = false;
-						if (selectedOrder == 0) { // ORDRE CROISSANT
-							for (i = 0; i < tr.length - 1; i++) {
-									shouldSwitch = false;
-									x = tr[i].getElementsByTagName("td")[columnSearchId];
-									y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
-									if (convertAccentToStandardLetter(x.innerHTML.toLowerCase()) > convertAccentToStandardLetter(y.innerHTML.toLowerCase())) {
-										shouldSwitch = true;
-										break;
-									}
+			}
+
+			function selectTable(columnId) {
+				var columnSearchId = document.getElementById(columnId).value;
+				return columnSearchId;
+			}
+
+			function searchTable(input,table,columnId) {
+				var columnSearchId = columnId;
+				var trValues = document.getElementById("tableData").getElementsByTagName("tbody")[0].rows;
+				var input, filter, table, tr, td, i, txtValue;
+				input = document.getElementById(input);
+				filter = input.value.toUpperCase();
+				table = document.getElementById(table);
+				tr = table.getElementsByTagName("tr");
+
+				for (i = 0; i < tr.length; i++) {
+					td = tr[i].getElementsByTagName("td")[columnSearchId];
+					if (td) {
+						txtValue = td.textContent || td.innerText;
+						if (txtValue.toUpperCase().indexOf(filter) > -1) {
+						tr[i].style.display = "";
+						} else {
+						tr[i].style.display = "none";
+						}
+					}
+				}
+			}
+
+			function searchBinaryOperatorTable(input,table,columnId) {
+				var columnSearchId = columnId;
+				var binaryOperatorId = selectTable("selectedBinaryOperator");
+				var input, table, tr, td, i, txtValue;
+
+				if (binaryOperatorId == 0) {
+				binaryOperator = '<';
+				} else if (binaryOperatorId == 1) {
+					binaryOperator = '<=';
+				}  else if (binaryOperatorId == 2) {
+					binaryOperator = '=';
+				} else if (binaryOperatorId == 3) {
+					binaryOperator = '>';
+				} else if (binaryOperatorId == 4) {
+					binaryOperator = '>=';
+				}
+
+				input = document.getElementById(input);
+				table = document.getElementById(table);
+				tr = table.getElementsByTagName("tr");
+
+				for (i = 0; i < tr.length; i++) {
+					td = tr[i].getElementsByTagName("td")[columnSearchId];
+					if (td) {
+						txtValue = td.textContent || td.innerText;
+						if (binaryOperator == '<') {
+							if ((txtValue*1 < input.value*1) || ( input.value == "" ) ) {
+								tr[i].style.display = "";
+							} else {
+								tr[i].style.display = "none";
 							}
-						} else if (selectedOrder == 1) { // ORDRE DECROISSANT
-							for (i = 0; i < tr.length - 1; i++) {
-								shouldSwitch = false;
-								x = tr[i].getElementsByTagName("td")[columnSearchId];
-								y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
-								if (convertAccentToStandardLetter(x.innerHTML.toLowerCase()) < convertAccentToStandardLetter(y.innerHTML.toLowerCase())) {
-									shouldSwitch = true;
-									break;
-								}
-						}
-						}
-						if (shouldSwitch) {
-							tr[i].parentNode.insertBefore(tr[i + 1], tr[i]);
-							switching = true;
+						} else if (binaryOperator == '<=') {
+							if ((txtValue*1 <= input.value*1) || ( input.value == "" ) ) {
+								tr[i].style.display = "";
+							} else {
+								tr[i].style.display = "none";
+							}
+						} else if (binaryOperator == '=') {
+							if ((txtValue*1 == input.value*1) || ( input.value == "" ) ) {
+								tr[i].style.display = "";
+							} else {
+								tr[i].style.display = "none";
+							}
+						} else if (binaryOperator == '>') {
+							if ((txtValue*1 > input.value*1) || ( input.value == "" ) ) {
+								tr[i].style.display = "";
+							} else {
+								tr[i].style.display = "none";
+							}
+						} else if (binaryOperator == '>=') {
+							if ((txtValue*1 >= input.value*1) || ( input.value == "" ) ) {
+								tr[i].style.display = "";
+							} else {
+								tr[i].style.display = "none";
+							}
 						}
 					}
+				}
+			}
+
+			function sortTable(input,table,columnId) {
+				var selectedOrder = document.getElementById("selectedOrder").value;
+				var columnSearchId = columnId;
+				var switching, i, x, y, shouldSwitch;
+				var input, table, tr, i, txtValue;
+				input = document.getElementById(input);
+				filter = input.value.toUpperCase();
+				table = document.getElementById(table);
+				tr = table.getElementsByTagName("tr");
+				switching = true;
+
+				while (switching) {
+					switching = false;
+					if (selectedOrder == 0) { // ORDRE CROISSANT
+						for (i = 0; i < tr.length - 1; i++) {
+							shouldSwitch = false;
+							x = tr[i].getElementsByTagName("td")[columnSearchId];
+							y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
+							if (convertAccentToStandardLetter(x.innerHTML.toLowerCase()) > convertAccentToStandardLetter(y.innerHTML.toLowerCase())) {
+								shouldSwitch = true;
+								break;
+							}
+						}
+					} else if (selectedOrder == 1) { // ORDRE DECROISSANT
+						for (i = 0; i < tr.length - 1; i++) {
+							shouldSwitch = false;
+							x = tr[i].getElementsByTagName("td")[columnSearchId];
+							y = tr[i + 1].getElementsByTagName("td")[columnSearchId];
+							if (convertAccentToStandardLetter(x.innerHTML.toLowerCase()) < convertAccentToStandardLetter(y.innerHTML.toLowerCase())) {
+								shouldSwitch = true;
+								break;
+							}
+						}
+					}
+					if (shouldSwitch) {
+						tr[i].parentNode.insertBefore(tr[i + 1], tr[i]);
+						switching = true;
+					}
+				}
 			}
 
 			function convertAccentToStandardLetter(value) {
@@ -278,10 +312,9 @@
 				} else { // TEXTE
 					return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 				}
-
 			}
 
-			</script>
+		</script>
 
 	</body>
 </html>
