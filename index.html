@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="assets/css/style.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	
+
 		<span id="spanSaisir">Saisir :</span>
 	 	<input type="text" id="inputFilterAction" onkeyup="selectFilterAction()" placeholder="valeur / texte..." title="Type in a name">
 		<button id="sortButton" onclick="selectFilterAction()" disabled hidden>Trier !</button>
@@ -40,8 +40,8 @@
 			// ex URL publique : https://jsonplaceholder.typicode.com/todos/1
 
 			var tab_name = 'FruitsAndVegetables';
-			var spreadsheet_id = '1--6J7INOfcWZ0sUVJAlIzgxMuaZXoCnPfatQSVgiJMw';
-			var api_key = 'AIzaSyBlrDnOY8VVaUMm_39N3kJtiwhvTrI5PvE';
+			var spreadsheet_id = '19ThQQtvlXImQx2OC3D_pSrNQkx5Mmx4q0MxLkuI3elw';
+			var api_key = 'AIzaSyBW2cIc-aegzxLzbEyzmtgKX-9kCfhmO5M';
 			var url = 'https://sheets.googleapis.com/v4/spreadsheets/' +
 			           spreadsheet_id + '/values/' + tab_name +
 			           '?alt=json&key=' + api_key;
@@ -64,8 +64,8 @@
 			// Parse JSON string into object
 			var actual_JSON = JSON.parse(response);
 				realJSON = actual_JSON.values;
-				// console.log(response);
-				// console.log(realJSON);
+				console.log(response);
+				console.log(realJSON);
 				importJsonGoogleSheetsData(realJSON, 'tableFruitsAndVegetables');
 			});
 
@@ -114,7 +114,7 @@
 			function selectFilterAction() {
 				var action = selectTable("selectFilterAction");
 				var columnId = selectTable("selectFilterActionTable");
-				if (action == 0) { // TRI PAR NOM 
+				if (action == 0) { // TRI PAR NOM
 					searchTable('inputFilterAction','tableFruitsAndVegetables',columnId);
 				} else if (action == 1) { // TRI PAR VALEUR
 					searchBinaryOperatorTable('inputFilterAction','tableFruitsAndVegetables',columnId);
@@ -131,7 +131,7 @@
 				var selectedOrder = document.getElementById("selectedOrder");
 				var textSaisir = document.getElementById("spanSaisir");
 				var textAvecPourOption = document.getElementById("spanAvecPourOption");
-				if (action == 0) { // TRI PAR NOM 
+				if (action == 0) { // TRI PAR NOM
 					disableAndHideInput(sortButton);
 					disableAndHideInput(inputFilterAction, false);
 					disableAndHideInput(selectedBinaryOperator);
