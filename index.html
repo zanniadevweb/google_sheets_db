@@ -2,39 +2,36 @@
 <html lang="en">
 	<head>
 		<title>GoogleSheetsDB - Alexandre ZANNI</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-		<link rel="stylesheet" href="assets/css/style.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
+		<body style="padding-left: 50px;">
+			<span id="spanSaisir">Saisir :</span>
+		 	<input type="text" id="inputFilterAction" onkeyup="selectFilterAction()" placeholder="valeur / texte..." title="Type in a name">
+			<button id="sortButton" onclick="selectFilterAction()" disabled hidden>Trier !</button>
 
-		<span id="spanSaisir">Saisir :</span>
-	 	<input type="text" id="inputFilterAction" onkeyup="selectFilterAction()" placeholder="valeur / texte..." title="Type in a name">
-		<button id="sortButton" onclick="selectFilterAction()" disabled hidden>Trier !</button>
+			Filtrer par :
+			<select id="selectFilterAction" onchange="hideInputOnAction()">
+				<option value="0">nom</option>
+				<option value="1">valeur</option>
+				<option value="2">ordre</option>
+			</select>
+			sur la colonne :
+			<select id="selectFilterActionTable"></select>
 
-		Filtrer par :
-		<select id="selectFilterAction" onchange="hideInputOnAction()">
-			<option value="0">nom</option>
-			<option value="1">valeur</option>
-			<option value="2">ordre</option>
-		</select>
-		sur la colonne :
-		<select id="selectFilterActionTable"></select>
+			<span id="spanAvecPourOption" style="display: none;">avec pour option :</span>
+			<select disabled hidden id="selectedBinaryOperator">
+				<option value="0"><</option>
+				<option value="1"><=</option>
+				<option value="2">=</option>
+				<option value="3">></option>
+				<option value="4">>=</option>
+			</select>
+			<select disabled hidden id="selectedOrder">
+				<option value="0">Croissant</option>
+				<option value="1">Décroissant</option>
+			</select>
 
-		<span id="spanAvecPourOption" style="display: none;">avec pour option :</span>
-		<select disabled hidden id="selectedBinaryOperator">
-			<option value="0"><</option>
-			<option value="1"><=</option>
-			<option value="2">=</option>
-			<option value="3">></option>
-			<option value="4">>=</option>
-		</select>
-		<select disabled hidden id="selectedOrder">
-			<option value="0">Croissant</option>
-			<option value="1">Décroissant</option>
-		</select>
-
-		<div id="tableFruitsAndVegetables" class="table-wrapper"></div>
+			<div id="tableFruitsAndVegetables" class="table-wrapper"></div>
+		</body>
 
 			<script>
 			// ex URL publique : https://jsonplaceholder.typicode.com/todos/1
