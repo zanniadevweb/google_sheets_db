@@ -108,8 +108,11 @@
 				el.appendChild(table);
         	}
 
-			function selectFilterAction() {
+			function selectFilterAction(isDifferentAction = null) {
 				var action = selectTable("selectFilterAction");
+				if (isDifferentAction == true) {
+					action = 0
+				}
 				var columnId = selectTable("selectFilterActionTable");
 				if (action == 0) { // TRI PAR NOM
 					searchTable('inputFilterAction','tableFruitsAndVegetables',columnId);
@@ -135,6 +138,7 @@
 					disableAndHideInput(selectedOrder);
 					disableAndHideInput(textSaisir, false);
 					disableAndHideInput(textAvecPourOption);
+					resetSearchStateTable();
 				} else if (action == 1) { // TRI PAR VALEUR
 					disableAndHideInput(sortButton);
 					disableAndHideInput(inputFilterAction, false);
@@ -142,6 +146,7 @@
 					disableAndHideInput(selectedOrder);
 					disableAndHideInput(textSaisir, false);
 					disableAndHideInput(textAvecPourOption, false);
+					resetSearchStateTable();
 				} else if (action == 2) { // TRI PAR ORDRE
 					disableAndHideInput(sortButton, false);
 					disableAndHideInput(inputFilterAction);
@@ -149,6 +154,7 @@
 					disableAndHideInput(selectedOrder, false);
 					disableAndHideInput(textSaisir);
 					disableAndHideInput(textAvecPourOption, false);
+					resetSearchStateTable();
 				}
 			}
 
@@ -174,7 +180,12 @@
 				}
 
 			}
-
+			
+			function resetSearchStateTable() {
+				document.getElementById('inputFilterAction').value = '';
+				selectFilterAction(true);
+			}
+			
 			function selectTable(columnId) {
 				var columnSearchId = document.getElementById(columnId).value;
 				return columnSearchId;
